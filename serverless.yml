@@ -1,0 +1,4 @@
+
+functions:
+  app:
+    handler: index.handler
