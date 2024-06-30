@@ -38,15 +38,21 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(bodyparser.urlencoded({ extended: true}));
+app.use(bodyparser.urlencoded({ extended: true }));
 app.use(fileupload());
 
 cloudinary.config({
-    cloud_name : process.env.CLOUDINARY_NAME,
-    api_key : process.env.CLOUDINARY_KEY,
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
     api_secret: process.env.CLOUDINARY_SECRET
 })
 //ROUTES
+app.get('/v1/', (req, res) => {
+    res.send('Server is running');
+});
+app.get('/', (req, res) => {
+    res.send('Version is not valid');
+});
 app.use("/v1/auth", authRoute);
 app.use("/v1/admin", adminRoute);
 app.use("/v1/hospital", hospitalRoute);
