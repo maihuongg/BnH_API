@@ -11,40 +11,6 @@ const HospitalProfile = require('../models/hospitalProfileModel')
 const Mailjet = require('node-mailjet');
 const twilio = require('twilio');
 
-// const accountSid = 'ACeec4d357eb3077836b3b170f899734e4';
-// const authToken = '4476bbf856f0f103d616af21c7951935';
-// const twilioPhoneNumber = '+18143524180';
-
-// const client = new twilio(accountSid, authToken);
-
-// const sendConfirmationSms = async (userPhoneNumber, eventName) => {
-//     try {
-//         const message = await client.messages.create({
-//             body: `Bạn đã đăng ký thành công sự kiện: ${eventName}.`,
-//             from: twilioPhoneNumber,
-//             to: userPhoneNumber
-//         });
-//         console.log(`SMS sent successfully: ${message.sid}`);
-//     } catch (error) {
-//         console.error("Failed to send SMS:", error);
-//         throw error;
-//     }
-// };
-
-// const convertToInternationalPhone = (phone) => {
-//     // Loại bỏ bất kỳ khoảng trắng hoặc dấu gạch ngang nào
-//     phone = phone.replace(/\s+/g, '').replace(/-/g, '');
-
-//     // Kiểm tra xem số điện thoại có bắt đầu bằng số 0 hay không
-//     if (phone.startsWith('0')) {
-//         // Thay thế số 0 đầu tiên bằng +84
-//         phone = '+84' + phone.substring(1);
-//     }
-
-//     return phone;
-// };
-
-// const userController = require('../controllers/userController');
 require('dotenv').config();
 
 const userController = {
