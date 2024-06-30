@@ -38,25 +38,7 @@ const accountController = {
             return res.status(500).json({ error });
         }
     },
-    // verifyPhone: async (req, res) => {
-    //     try {
-    //         const { phone } = req.body;
-            
-    //         if (!phone) {
-    //             return res.status(400).json({ error: 'Phone number is required' });
-    //         }
-            
-    //         textlink.useKey("iT2avWgCUMBCZK2usroOXukiyGF3avJCUnmTzercUy9vEzMhCTqLaETHpaEUK9K3"); // Replace with your API key
-            
-    //         const message = "Your verification code is 123456"; // Thay đổi thông báo phù hợp
-            
-    //         await textlink.sendSMS(phone, message);
-            
-    //         return res.status(200).json({ message: 'SMS sent successfully' });
-    //     } catch (error) {
-    //         return res.status(500).json({ error: error.message });
-    //     }
-    // }
+
     
 };
 
