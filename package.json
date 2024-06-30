@@ -29,6 +29,7 @@
     "node-mailjet": "^6.0.5",
     "nodemailer": "^6.9.8",
     "nodemon": "^3.0.1",
+    "serverless": "^4.1.7",
     "serverless-http": "^3.2.0",
     "textlink-sms": "^0.0.3",
     "twilio": "^5.2.0",
