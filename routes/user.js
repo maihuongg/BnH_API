@@ -11,7 +11,6 @@ router.put('/profileimage/:account_id',authMiddleware.isUser, userController.upd
 router.post('/forgot-password',userController.forgotPassword);
 
 
-router.post('/phone',accountController.verifyPhone);
 router.post('/valid-reset-token',authMiddleware.checkValidResetPasswordToken);
 router.put('/reset-password', accountController.resetPassword);
 router.get('/event', userController.getAllEventByUser);
