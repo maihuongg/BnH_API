@@ -9,8 +9,6 @@ const Event = require('../models/eventModel')
 const moment = require('moment');
 const HospitalProfile = require('../models/hospitalProfileModel')
 const Mailjet = require('node-mailjet');
-const twilio = require('twilio');
-
 require('dotenv').config();
 
 const userController = {
