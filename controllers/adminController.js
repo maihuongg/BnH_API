@@ -775,13 +775,10 @@ const adminController = {
                     }
                 })
                 // //count blood
-                // event.listusers.user.forEach(user=>{
-                //     countAmountBlood["dukiennhanduoc"]+=user.amount_blood;
-                //     //detail amount blood-group
-                //     if (user.bloodgroup in detailAmountBlood) {
-                //         detailAmountBlood[user.bloodgroup] += user.amount_blood;
-                //     }
-                // })
+                event.listusers.user.forEach(user=>{
+                    countAmountBlood["dukiennhanduoc"]+=user.amount_blood;
+                  
+                })
 
 
                 return res.status(200).json({ countStatusUser, countAmountBlood, total: event.listusers.count })
