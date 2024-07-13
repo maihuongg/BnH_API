@@ -4,7 +4,12 @@ const sendMail = require('../utils/email')
 const Validate = require('validator');
 const Event = require('../models/eventModel')
 const UserProfile = require('../models/userProfileModel');
+const Account = require('../models/accountModel');
 const cloudinary = require('cloudinary');
+const moment = require('moment');
+const Mailjet = require('node-mailjet');
+require('dotenv').config();
+
 const hospitalController = {
     getHospitalById: async (req, res) => {
         try {
@@ -66,6 +71,19 @@ const hospitalController = {
                 address: req.body.address,
             })
             const event = await newEvent.save();
+            const hospital = await HospitalProfile.findOne({ _id: req.body.hospital_id })
+            const hospitalName = hospital.hospitalName;
+
+            // Truy vấn tất cả các email user từ collection Account
+            const accountsuser = await Account.find({isAdmin: false, isHospital: false}, 'email'); // Chỉ chọn trường email
+            const emails = accountsuser.map(account => account.email);
+
+            // Tùy chọn, log ra các email hoặc sử dụng cho mục đích khác
+            console.log(emails);
+
+            const emailResponse = await sendMailNewEvent(event, hospitalName, emails);
+            console.log('Email response:', emailResponse);
+
             return res.status(200).json(event);
 
         } catch (error) {
@@ -302,6 +320,7 @@ const hospitalController = {
                 updateEvent.checkin_time = currentTime;
             } else if (status === "1") {
                 updateEvent.checkout_time = currentTime;
+                updateEvent.reward++;
             }
 
             // Lưu thông tin người dùng đã cập nhật
@@ -314,6 +333,51 @@ const hospitalController = {
             console.error(error);
             return res.status(500).json({ message: "Lỗi server" });
         }
+    }
+};
+const mailjet = Mailjet.apiConnect(
+    process.env.MJ_APIKEY_PUBLIC,
+    process.env.MJ_APIKEY_PRIVATE,
+);
+
+const sendMailNewEvent = async (newevent, hospital, emails) => {
+    try {
+        const recipients = emails.map(email => ({ Email: email }));
+        const request = await mailjet
+            .post('send', { version: 'v3.1' })
+            .request({
+                Messages: [
+                    {
+                        From: {
+                            Email: "maihuongdang76@gmail.com",
+                            Name: "BloodnHeart"
+                        },
+                        To: recipients,
+                        Subject: "[BloodnHeart] Thông báo sự kiện mới sắp diễn ra",
+                        HTMLPart:
+                            `
+                        <p>Chào bạn,</p>
+
+                        <p>Sự kiện mới sắp được diễn ra!</p>
+                        <p>${newevent.eventName} được tổ chức bởi ${hospital}</p>
+                        <p> Sự kiện diễn ra từ ${moment(newevent.date_start).format('DD-MM-YYYY')} đến ${moment(newevent.date_end).format('DD-MM-YYYY')} </p>
+                        <p> Nơi diễn ra sự kiện: ${newevent.address}  </p>
+                        <p> Truy cập trang web ( link: https://bloodnheart.vercel.app ) hoặc app mobile BloodHeartApp để xem chi tiết và đăng ký sự kiện. </p>
+                        
+                        <p>Nếu có bất cứ vấn đề nào hãy liên hệ qua email. Chúng tôi luôn ở đây để hỗ trợ bạn. Xin cảm ơn!</p>
+                        
+                        <p>Trân trọng,</p>
+                        <p>BloodnHeart Team.</p>
+                        `
+                    }
+                ]
+            });
+        console.log("Email sent successfully");
+        return request;
+    } catch (error) {
+        console.log("Email not sent!");
+        console.error(error);
+        return error;
     }
 }
 module.exports = hospitalController;

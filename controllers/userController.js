@@ -264,8 +264,6 @@ const userController = {
                 checkout_time: null,
             })
 
-            user.reward++;
-
             const updateProfile = await user.save();
             // console.log("USER PHONE:", user.phone)
             // console.log("Event NamE:", event.eventName)
@@ -282,32 +280,48 @@ const userController = {
     },
 
     checkRegistrationDate: async (req, res) => {
-
         try {
             const { userId, date } = req.body;
-
+    
             // Tìm userProfile
             const userProfile = await UserProfile.findById(userId);
-
+    
             if (!userProfile) {
                 return res.status(404).json({ success: false, message: "Không tìm thấy userProfile" });
             }
-
+    
             const registrationDate = new Date(date); // Ngày cần kiểm tra
-
-            // Kiểm tra mỗi sự kiện trong history của userProfile
-            for (const event of userProfile.history) {
+    
+            // Tách userProfile.history thành hai danh sách dựa trên status_user
+            const eventsWithStatus1 = userProfile.history.filter(event => event.status_user === "1");
+            const otherEvents = userProfile.history.filter(event => event.status_user !== "1");
+    
+            // Kiểm tra mỗi sự kiện trong danh sách eventsWithStatus1
+            for (const event of eventsWithStatus1) {
                 const eventDate = new Date(event.date);
-
+    
                 // Tính số ngày chênh lệch giữa ngày đăng ký và ngày hiện tại
                 const diffDays = Math.floor((registrationDate - eventDate) / (1000 * 60 * 60 * 24));
-
+    
                 // Nếu ngày chênh lệch nhỏ hơn 90 ngày, trả về 0
                 if (diffDays < 90) {
                     return res.status(200).json({ result: 0 });
                 }
             }
-
+    
+            // Kiểm tra mỗi sự kiện trong danh sách otherEvents
+            for (const event of otherEvents) {
+                const eventDate = new Date(event.date);
+    
+                // Tính số ngày chênh lệch giữa ngày đăng ký và ngày hiện tại
+                const diffDays = Math.floor((registrationDate - eventDate) / (1000 * 60 * 60 * 24));
+    
+                // Nếu ngày chênh lệch nhỏ hơn 90 ngày, trả về -1
+                if (diffDays < 90) {
+                    return res.status(200).json({ result: -1 });
+                }
+            }
+    
             // Nếu không có sự kiện nào thỏa mãn điều kiện, trả về 1
             return res.status(200).json({ result: 1 });
         } catch (error) {
@@ -387,7 +401,6 @@ const userController = {
 
             // xóa sự kiện trong người dùng
             userProfile.history.pull({ id_event: eventId });
-            userProfile.reward--;
 
             // Lưu thông tin người dùng đã cập nhật
             await userProfile.save();
@@ -488,7 +501,7 @@ const userController = {
 
     bestFiveEvent: async (req, res) => {
         try {
-            const event = await Event.find().sort({ 'listusers.count': -1 }).limit(5);
+            const event = await Event.find({status: "1"}).sort({ 'listusers.count': -1 }).limit(5);
 
             if (!event) {
                 return res.status(404).json({ message: 'Không tìm thấy sự kiện.' });
