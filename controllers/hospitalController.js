@@ -333,7 +333,193 @@ const hospitalController = {
             console.error(error);
             return res.status(500).json({ message: "Lỗi server" });
         }
+    },
+    updateBloodStatus: async (req, res) => {
+        try {
+            const { eventId, userId, bloodStatus, description } = req.body;
+
+            // Tìm sự kiện và cập nhật blood_status và description trong user của sự kiện
+            const event = await Event.findOne({
+                _id: eventId,
+            });
+
+            if (!event) {
+                return res.status(404).json({ message: "Sự kiện không tồn tại hoặc người dùng không tham gia sự kiện" });
+            }
+
+            // Tìm và cập nhật blood_status và description trong user của sự kiện
+            const userInEvent = event.listusers.user.find(user => user.userid === userId);
+            userInEvent.blood_status = bloodStatus;
+            userInEvent.description = bloodStatus === 0 ? description : "Máu đạt tiêu chuẩn";
+
+            // Cập nhật status_user cho user trong sự kiện
+            userInEvent.status_user = bloodStatus === 0 ? 2 : -1;
+
+            // Lưu sự kiện đã cập nhật
+            await event.save();
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const userProfile = await UserProfile.findOne({
+                _id: userId,
+            });
+
+            if (!userProfile) {
+                return res.status(404).json({ message: "Hồ sơ người dùng không tồn tại hoặc sự kiện không có trong lịch sử" });
+            }
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const historyItem = userProfile.history.find(item => item.id_event === eventId);
+            historyItem.blood_status = bloodStatus;
+            historyItem.description = bloodStatus === 0 ? description : "máu đạt tiêu chuẩn";
+
+            // Lưu hồ sơ người dùng đã cập nhật
+            await userProfile.save();
+
+            return res.status(200).json({ message: "Cập nhật thành công", event, userProfile });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Lỗi server" });
+        }
+    },
+    getUserProfileById: async (req, res) => {
+        try {
+            const accountId = req.params.id; // Sử dụng req.params.id để lấy giá trị từ URL
+            console.log(accountId);
+            const user = await UserProfile.findOne({ _id: accountId });
+
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+
+            return res.status(200).json(user);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    findUserInEventWithAccountId: async (req, res) => {
+        try {
+            const { eventId, userId } = req.query;
+            console.log("User ID nhận được từ req.body:", userId);
+
+            // Tìm sự kiện với eventId được cung cấp
+            const event = await Event.findOne({
+                _id: eventId,
+            });
+
+            if (!event) {
+                return res.status(404).json({ message: "Sự kiện không tồn tại" });
+            }
+
+            // In chi tiết của event để kiểm tra
+            console.log("Event tìm được: ", JSON.stringify(event, null, 2));
+
+            // Tìm user trong danh sách người dùng của sự kiện
+            const userInEvent = event.listusers.user.find(user => user.userid === userId);
+
+            if (!userInEvent) {
+                return res.status(404).json({ message: "Người dùng không tham gia sự kiện" });
+            }
+
+            // In thông tin chi tiết của userInEvent để kiểm tra
+            console.log("User In event:", JSON.stringify(userInEvent, null, 2));
+
+            // Trả về thông tin của người dùng
+            return res.status(200).json(userInEvent);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    updateCheckinTime: async (req, res) => {
+        try {
+            const { eventId, userId, checkin_time, status_user } = req.body;
+            const currentTime = new Date();
+            // Tìm sự kiện và cập nhật blood_status và description trong user của sự kiện
+            const event = await Event.findOne({
+                _id: eventId,
+            });
+
+            if (!event) {
+                return res.status(404).json({ message: "Sự kiện không tồn tại hoặc người dùng không tham gia sự kiện" });
+            }
+            // Tìm và cập nhật check in và status  trong user của sự kiện
+            const userInEvent = event.listusers.user.find(user => user.userid === userId);
+            userInEvent.checkin_time = currentTime
+            // Cập nhật status_user cho user trong sự kiện
+            userInEvent.status_user = 0;
+
+            // Lưu sự kiện đã cập nhật
+            await event.save();
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const userProfile = await UserProfile.findOne({
+                _id: userId,
+            });
+
+            if (!userProfile) {
+                return res.status(404).json({ message: "Hồ sơ người dùng không tồn tại hoặc sự kiện không có trong lịch sử" });
+            }
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const historyItem = userProfile.history.find(item => item.id_event === eventId);
+            historyItem.checkin_time = currentTime
+            // Cập nhật status_user cho user trong sự kiện
+            historyItem.status_user = 0;
+            // Lưu hồ sơ người dùng đã cập nhật
+            await userProfile.save();
+
+            return res.status(200).json({ message: "Cập nhật thành công", event, userProfile });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Lỗi server" });
+        }
+    },
+    updateCheckOutTime: async (req, res) => {
+        try {
+            const { eventId, userId, checkout_time, status_user } = req.body;
+            const currentTime = new Date();
+            // Tìm sự kiện và cập nhật blood_status và description trong user của sự kiện
+            const event = await Event.findOne({
+                _id: eventId,
+            });
+
+            if (!event) {
+                return res.status(404).json({ message: "Sự kiện không tồn tại hoặc người dùng không tham gia sự kiện" });
+            }
+            // Tìm và cập nhật check in và status  trong user của sự kiện
+            const userInEvent = event.listusers.user.find(user => user.userid === userId);
+            userInEvent.checkout_time = currentTime
+            // Cập nhật status_user cho user trong sự kiện
+            userInEvent.status_user = 1;
+
+            // Lưu sự kiện đã cập nhật
+            await event.save();
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const userProfile = await UserProfile.findOne({
+                _id: userId,
+            });
+
+            if (!userProfile) {
+                return res.status(404).json({ message: "Hồ sơ người dùng không tồn tại hoặc sự kiện không có trong lịch sử" });
+            }
+
+            // Tìm và cập nhật blood_status và description trong history của UserProfile
+            const historyItem = userProfile.history.find(item => item.id_event === eventId);
+            historyItem.checkout_time = currentTime
+            // Cập nhật status_user cho user trong sự kiện
+            historyItem.status_user = 1;
+            // Lưu hồ sơ người dùng đã cập nhật
+            await userProfile.save();
+
+            return res.status(200).json({ message: "Cập nhật thành công", event, userProfile });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Lỗi server" });
+        }
     }
+<<<<<<< Updated upstream
 };
 const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,
@@ -379,5 +565,15 @@ const sendMailNewEvent = async (newevent, hospital, emails) => {
         console.error(error);
         return error;
     }
+=======
+
+
+
+
+
+
+
+
+>>>>>>> Stashed changes
 }
 module.exports = hospitalController;

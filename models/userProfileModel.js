@@ -96,6 +96,14 @@ const userProfileSchema = new mongoose.Schema(
             checkout_time: {
                 type: Date,
                 require: true,
+            },
+            blood_status:{
+                type:String,
+                require: true,
+            },
+            description:{
+                type:String,
+                require: true,
             }
         }]
     },

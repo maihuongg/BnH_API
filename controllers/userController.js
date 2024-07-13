@@ -241,6 +241,10 @@ const userController = {
                 status_user: "-1",
                 dateregister: dateRegister,
                 amount_blood: amount_blood,
+                checkin_time: null,
+                checkout_time: null,
+                blood_status: null,
+                description:null,
             });
 
             console.log('Updated Event (before saving):', event);
@@ -262,6 +266,8 @@ const userController = {
                 amount_blood: amount_blood,
                 checkin_time: null,
                 checkout_time: null,
+                blood_status: null,
+                description:null,
             })
 
             const updateProfile = await user.save();

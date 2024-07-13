@@ -69,6 +69,22 @@ const eventSchema = new mongoose.Schema(
                 amount_blood: {
                     type: Number,
                     require: true,
+                },
+                checkin_time: {
+                    type: Date,
+                    require: true,
+                },
+                checkout_time: {
+                    type: Date,
+                    require: true,
+                },
+                blood_status:{
+                    type:String,
+                    require: true,
+                },
+                description:{
+                    type:String,
+                    require: true,
                 }
             }]
         }
