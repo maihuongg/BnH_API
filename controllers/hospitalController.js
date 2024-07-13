@@ -519,7 +519,6 @@ const hospitalController = {
             return res.status(500).json({ message: "Lỗi server" });
         }
     }
-<<<<<<< Updated upstream
 };
 const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,
@@ -565,15 +564,5 @@ const sendMailNewEvent = async (newevent, hospital, emails) => {
         console.error(error);
         return error;
     }
-=======
-
-
-
-
-
-
-
-
->>>>>>> Stashed changes
 }
 module.exports = hospitalController;
