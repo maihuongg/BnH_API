@@ -775,9 +775,9 @@ const adminController = {
                     }
                 })
                 // //count blood
-                event.listusers.user.forEach(user=>{
-                    countAmountBlood["dukiennhanduoc"]+=user.amount_blood;
-                  
+                event.listusers.user.forEach(user => {
+                    countAmountBlood["dukiennhanduoc"] += user.amount_blood;
+
                 })
 
 
@@ -810,14 +810,14 @@ const adminController = {
 
                 //count blood
                 event.listusers.user.forEach(user => {
-                   
+
                     if (user.bloodgroup in detailAmountBlood) {
                         detailAmountBlood[user.bloodgroup] += user.amount_blood;
                     }
                 })
 
 
-                return res.status(200).json({detailAmountBlood})
+                return res.status(200).json({ detailAmountBlood })
             }
 
         } catch (error) {
@@ -825,7 +825,68 @@ const adminController = {
             return res.status(500).json({ error: "Internal Server Error" });
         }
     },
+    getRegisterStatistic: async (req, res) => {
+        const { date_from, date_to } = req.body;
 
+        try {
+            // Chuyển đổi date_from và date_to thành đối tượng Date theo định dạng MM/DD/YYYY
+            const [monthFrom, dayFrom, yearFrom] = date_from.split('/');
+            const [monthTo, dayTo, yearTo] = date_to.split('/');
+
+            const startDate = new Date(`${yearFrom}-${monthFrom}-${dayFrom}T00:00:00Z`);
+            const endDate = new Date(`${yearTo}-${monthTo}-${dayTo}T23:59:59Z`);
+
+            console.log("startDate:", startDate);
+            console.log("endDate:", endDate);
+            // Tìm các sự kiện trong khoảng thời gian chỉ định
+            const events = await Event.find({
+                $or: [
+                    { date_start: { $gte: startDate, $lte: endDate } },
+                    { date_end: { $gte: startDate, $lte: endDate } },
+                    { date_start: { $lte: startDate }, date_end: { $gte: endDate } },
+                ]
+            });
+
+            // Khởi tạo đối tượng để lưu trữ số lượng đăng ký mỗi ngày
+            const registrationsPerDay = {};
+
+            // Khởi tạo các ngày trong khoảng thời gian với số lượng đăng ký bằng 0
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                const dateString = currentDate.toISOString().split('T')[0];
+                registrationsPerDay[dateString] = 0;
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            // Duyệt qua từng sự kiện
+            events.forEach(event => {
+                // Duyệt qua từng người dùng trong listusers
+                event.listusers.user.forEach(user => {
+                    const registerDate = new Date(user.dateregister);
+
+                    // Kiểm tra và đếm số lượng đăng ký trong khoảng thời gian chỉ định
+                    if (registerDate >= startDate && registerDate <= endDate) {
+                        const dateString = registerDate.toISOString().split('T')[0]; // Định dạng ngày thành YYYY-MM-DD
+                        registrationsPerDay[dateString]++;
+                    }
+                });
+            });
+
+            // Chuyển đổi kết quả thành mảng các đối tượng
+            const result = Object.keys(registrationsPerDay).map(date => ({
+                date,
+                registrations: registrationsPerDay[date]
+            }));
+            
+
+            // Gửi phản hồi
+            return res.status(200).json(result);
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
 }
 async function validateAddNewHospital(body) {
     const { cccd, email, hospitalName, leaderName, phone, address } = body;

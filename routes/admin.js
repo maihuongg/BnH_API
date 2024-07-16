@@ -53,5 +53,6 @@ router.get('/statistic/account-register', adminController.getAccountFiveDays);
 
 router.get('/statistic/event/:id', adminController.getEventStatisticByEventId);
 router.get('/statistic/event/amountblood/:id', adminController.getAmountBloodByEventId);
+router.post('/statistic/register-event', adminController.getRegisterStatistic);
 
 module.exports = router;

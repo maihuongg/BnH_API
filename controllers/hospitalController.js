@@ -518,7 +518,33 @@ const hospitalController = {
             console.error(error);
             return res.status(500).json({ message: "Lỗi server" });
         }
+    },
+    addUserNotAccount: async (req, res) => {
+        try{
+            const {cccd, fullName, gender, birthDay, bloodgroup, address, email, phone} = req.body;
+            const userwithcccd = await UserProfile.findOne({cccd: cccd});
+            if(userwithcccd){
+                return res.status(200).json(userwithcccd);
+            }
+            const newUserProfile = new UserProfile({
+                account_id: "0",
+                cccd: cccd,
+                fullName: fullName,
+                gender: gender,
+                birthDay: birthDay,
+                bloodgroup: bloodgroup,
+                address: address,
+                email: email,
+                phone: phone
+            });
+            const userProfile = await newUserProfile.save();
+            console.log(userProfile);
+            return res.status(200).json(userProfile);
+        }catch (error) {
+            return res.status(500).json(error);
+        }
     }
+    
 };
 const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,

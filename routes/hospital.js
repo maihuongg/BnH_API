@@ -22,7 +22,8 @@ router.put('/update-status1', authMiddleware.isHospital, hospitalController.upda
 router.put('/update-blood-status', authMiddleware.isHospital, hospitalController.updateBloodStatus);
 router.put('/update-checkin', authMiddleware.isHospital, hospitalController.updateCheckinTime);
 router.put('/update-checkout', authMiddleware.isHospital, hospitalController.updateCheckOutTime);
-
+router.post('/addusernotaccount', authMiddleware.isHospital, hospitalController.addUserNotAccount);
+router.post('/event/register', authMiddleware.isHospital, userController.registerEvent);
 
 
 router.put('/updatePassword', authMiddleware.isHospital, userController.updatepassword);
