@@ -75,7 +75,7 @@ const hospitalController = {
             const hospitalName = hospital.hospitalName;
 
             // Truy vấn tất cả các email user từ collection Account
-            const accountsuser = await Account.find({isAdmin: false, isHospital: false}, 'email'); // Chỉ chọn trường email
+            const accountsuser = await Account.find({ isAdmin: false, isHospital: false }, 'email'); // Chỉ chọn trường email
             const emails = accountsuser.map(account => account.email);
 
             // Tùy chọn, log ra các email hoặc sử dụng cho mục đích khác
@@ -510,6 +510,10 @@ const hospitalController = {
             historyItem.checkout_time = currentTime
             // Cập nhật status_user cho user trong sự kiện
             historyItem.status_user = 1;
+            //Cập nhật reward
+            if (userProfile.account_id !== "0") {
+                userProfile.reward++;
+            }
             // Lưu hồ sơ người dùng đã cập nhật
             await userProfile.save();
 
@@ -520,10 +524,10 @@ const hospitalController = {
         }
     },
     addUserNotAccount: async (req, res) => {
-        try{
-            const {cccd, fullName, gender, birthDay, bloodgroup, address, email, phone} = req.body;
-            const userwithcccd = await UserProfile.findOne({cccd: cccd});
-            if(userwithcccd){
+        try {
+            const { cccd, fullName, gender, birthDay, bloodgroup, address, email, phone } = req.body;
+            const userwithcccd = await UserProfile.findOne({ cccd: cccd });
+            if (userwithcccd) {
                 return res.status(200).json(userwithcccd);
             }
             const newUserProfile = new UserProfile({
@@ -540,11 +544,42 @@ const hospitalController = {
             const userProfile = await newUserProfile.save();
             console.log(userProfile);
             return res.status(200).json(userProfile);
-        }catch (error) {
+        } catch (error) {
             return res.status(500).json(error);
         }
+    },
+    countListUsersByAccountType: async (req, res) => {
+        const eventId = req.params.id;
+        try {
+            const event = await Event.findById(eventId);
+            if (!event) {
+                return res.status(404).json({ message: 'Event not found' });
+            }
+            let usersWithAccountIdZero = 0;
+            let usersWithNonZeroAccountId = 0;
+            // Use Promise.all to wait for all UserProfile queries to finish
+            await Promise.all(event.listusers.user.map(async (user) => {
+                const userProfile = await UserProfile.findOne({ _id: user.userid });
+
+                if (userProfile) {
+                    if (userProfile.account_id === "0") {
+                        usersWithAccountIdZero++;
+                    } else {
+                        usersWithNonZeroAccountId++;
+                    }
+                }
+            }));
+
+            return res.status(200).json({
+                usersWithAccountIdZero,
+                usersWithNonZeroAccountId
+            });
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Lỗi server" });
+        }
     }
-    
+
 };
 const mailjet = Mailjet.apiConnect(
     process.env.MJ_APIKEY_PUBLIC,

@@ -24,6 +24,7 @@ router.put('/update-checkin', authMiddleware.isHospital, hospitalController.upda
 router.put('/update-checkout', authMiddleware.isHospital, hospitalController.updateCheckOutTime);
 router.post('/addusernotaccount', authMiddleware.isHospital, hospitalController.addUserNotAccount);
 router.post('/event/register', authMiddleware.isHospital, userController.registerEvent);
+router.get('/countregistereventbyaccount/:id', hospitalController.countListUsersByAccountType);
 
 
 router.put('/updatePassword', authMiddleware.isHospital, userController.updatepassword);
