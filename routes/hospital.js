@@ -23,7 +23,7 @@ router.put('/update-blood-status', authMiddleware.isHospital, hospitalController
 router.put('/update-checkin', authMiddleware.isHospital, hospitalController.updateCheckinTime);
 router.put('/update-checkout', authMiddleware.isHospital, hospitalController.updateCheckOutTime);
 router.post('/addusernotaccount', authMiddleware.isHospital, hospitalController.addUserNotAccount);
-router.post('/event/register', authMiddleware.isHospital, userController.registerEvent);
+router.post('/event/register', authMiddleware.isHospital, hospitalController.registerEvent);
 router.get('/countregistereventbyaccount/:id', hospitalController.countListUsersByAccountType);
 
 

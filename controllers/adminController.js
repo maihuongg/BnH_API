@@ -751,10 +751,22 @@ const adminController = {
                     "danghien": 0,
                     "daxong": 0
                 }
+                const countStatusUserNotAccount = {
+                    "chuahien": 0,
+                    "danghien": 0,
+                    "daxong": 0
+                }
+                const countStatusUserAccount = {
+                    "chuahien": 0,
+                    "danghien": 0,
+                    "daxong": 0
+                }
                 const countAmountBlood = {
                     "dukiennhanduoc": 0,
                     "thucte": 0
                 }
+                let usersWithAccountId = 0;
+                let usersWithNonAccountId = 0;
                 // const detailAmountBlood={
                 //     "A":0,
                 //     "B":0,
@@ -773,7 +785,33 @@ const adminController = {
                         countStatusUser["daxong"]++;
                         countAmountBlood["thucte"] += user.amount_blood;
                     }
-                })
+                });
+
+                await Promise.all(event.listusers.user.map(async (user) => {
+                    const userProfile = await UserProfile.findOne({ _id: user.userid });
+                    if (userProfile) {
+                        if (userProfile.account_id === "0") {
+                            usersWithNonAccountId++;
+                            if (user.status_user === "-1") {
+                                countStatusUserNotAccount["chuahien"]++;
+                            } else if (user.status_user === "0") {
+                                countStatusUserNotAccount["danghien"]++;
+                            } else if (user.status_user === "1") {
+                                countStatusUserNotAccount["daxong"]++;
+                            }
+                        } else {
+                            usersWithAccountId++;
+                            if (user.status_user === "-1") {
+                                countStatusUserAccount["chuahien"]++;
+                            } else if (user.status_user === "0") {
+                                countStatusUserAccount["danghien"]++;
+                            } else if (user.status_user === "1") {
+                                countStatusUserAccount["daxong"]++;
+                            }
+                        }
+                    }
+                }));
+
                 // //count blood
                 event.listusers.user.forEach(user => {
                     countAmountBlood["dukiennhanduoc"] += user.amount_blood;
@@ -781,7 +819,7 @@ const adminController = {
                 })
 
 
-                return res.status(200).json({ countStatusUser, countAmountBlood, total: event.listusers.count })
+                return res.status(200).json({ countStatusUser, countStatusUserAccount, countStatusUserNotAccount, countAmountBlood, total: event.listusers.count, usersWithAccountId, usersWithNonAccountId })
             }
 
         } catch (error) {
@@ -877,7 +915,7 @@ const adminController = {
                 date,
                 registrations: registrationsPerDay[date]
             }));
-            
+
 
             // Gửi phản hồi
             return res.status(200).json(result);

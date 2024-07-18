@@ -28,7 +28,7 @@ mongoose.connect(process.env.MONGODB_URL, {
         console.error("Error connecting to database:", error);
     });
 //const allowedOrigins = ['http://localhost:3000', 'http://localhost:4000'];
-const allowedOrigins = ['http://localhost:19006', 'exp://192.168.1.5:8081', 'http://localhost:3000', 'http://localhost:4000','https://bloodnheart.vercel.app','https://admin-bloodn-heart.vercel.app'];
+const allowedOrigins = ['http://localhost:19006', 'exp://192.168.1.6:8081', 'exp://192.168.1.6:8082', 'http://localhost:3000', 'http://localhost:4000','https://bloodnheart.vercel.app','https://admin-bloodn-heart.vercel.app'];
 
 
 app.use(cors({

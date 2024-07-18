@@ -578,7 +578,94 @@ const hospitalController = {
             console.error(error);
             return res.status(500).json({ message: "Lỗi server" });
         }
-    }
+    },
+    registerEvent: async (req, res) => {
+        try {
+            const { eventId, userId, bloodGroup, dateRegister, amount_blood } = req.body;
+
+            // Find the event by ID
+            const event = await Event.findById(eventId);
+            console.log("Event info:", event);
+            if (!event) {
+                return res.status(404).json({ message: "Event not found" });
+            }
+
+            const user = await UserProfile.findById(userId);
+
+            console.log("user:", user);
+
+            if (!user) {
+                return res.status(404).json({ message: "Event not found" });
+            }
+
+            // Tính tuổi của người dùng
+            const currentDate = new Date();
+            const birthDate = new Date(user.birthDay);
+            const age = currentDate.getFullYear() - birthDate.getFullYear();
+            const monthDifference = currentDate.getMonth() - birthDate.getMonth();
+            console.log("usergggggg:");
+            
+            
+
+            // Check if the user already exists in the listusers array
+            const existingUser = event.listusers.user.find(user => user.userid === userId);
+
+            if (existingUser) {
+                return res.status(400).json({ message: "Bạn đã đăng ký sự kiện này!" });
+            }
+            console.log("usergggggg:", user);
+
+            // Add the user to the listusers array
+            event.listusers.user.push({
+                userid: userId,
+                username: user.fullName,
+                bloodgroup: bloodGroup,
+                status_user: "-1",
+                dateregister: dateRegister,
+                amount_blood: amount_blood,
+                checkin_time: null,
+                checkout_time: null,
+                blood_status: null,
+                description:null,
+            });
+
+            console.log('Updated Event (before saving):', event);
+
+            // Update the listusers count directly in the database
+            event.listusers.count++;
+
+            // Save the updated event
+            const updatedEvent = await event.save();
+
+            console.log('Updated Event (after saving):', updatedEvent);
+
+            user.history.push({
+                id_event: eventId,
+                eventName: event.eventName,
+                address_event: event.address,
+                date: dateRegister,
+                status_user: "-1",
+                amount_blood: amount_blood,
+                checkin_time: null,
+                checkout_time: null,
+                blood_status: null,
+                description:null,
+            })
+
+            const updateProfile = await user.save();
+            // console.log("USER PHONE:", user.phone)
+            // console.log("Event NamE:", event.eventName)
+            // // Chuyển đổi số điện thoại sang định dạng quốc tế
+            // const internationalPhone = convertToInternationalPhone(user.phone);
+            // console.log("International PHONE:", internationalPhone);
+            // // Gửi SMS xác nhận
+            // await sendConfirmationSms(internationalPhone, event.eventName);
+
+            res.status(200).json({ message: "Đăng ký sự kiện thành công" });
+        } catch (error) {
+            return res.status(500).json(error);
+        }
+    },
 
 };
 const mailjet = Mailjet.apiConnect(

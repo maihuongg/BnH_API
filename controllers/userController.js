@@ -216,15 +216,20 @@ const userController = {
             const birthDate = new Date(user.birthDay);
             const age = currentDate.getFullYear() - birthDate.getFullYear();
             const monthDifference = currentDate.getMonth() - birthDate.getMonth();
-
+            console.log("usergggggg:");
+            
             if (monthDifference < 0 || (monthDifference === 0 && currentDate.getDate() < birthDate.getDate())) {
                 age--;
             }
+
+            console.log("usergggggg:");
 
             // Kiểm tra độ tuổi được đăng ký hiến máu
             if (age < 18 || age > 60) {
                 return res.status(400).json({ message: "Tuổi của bạn không nằm trong khoảng cho phép (18-60 tuổi)" });
             }
+
+            console.log("usergggggg:");
 
             // Check if the user already exists in the listusers array
             const existingUser = event.listusers.user.find(user => user.userid === userId);
@@ -232,6 +237,7 @@ const userController = {
             if (existingUser) {
                 return res.status(400).json({ message: "Bạn đã đăng ký sự kiện này!" });
             }
+            console.log("usergggggg:", user);
 
             // Add the user to the listusers array
             event.listusers.user.push({
