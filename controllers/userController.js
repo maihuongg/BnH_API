@@ -121,7 +121,7 @@ const userController = {
             const currentDate = moment(); // Ngày hiện tại
             await Event.updateMany({ date_end: { $lt: currentDate }, status: "1" }, { $set: { status: "0" } });
 
-            const allEvent = await Event.find({ status: "1" });
+            const allEvent = await Event.find({ status: "1" }).sort({date_start:1});
             const eventCount = allEvent.length;
 
             return res.status(200).json({ count: eventCount, allEvent });
